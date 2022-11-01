@@ -1,23 +1,33 @@
 import { FC } from 'react'
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import {useForm, SubmitHandler} from 'react-hook-form'
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 interface IFormInputs{
   email: string,
   password:string
 }
 
+const schema = yup.object().shape({
+  email: yup.string().email(),
+  password: yup.string().min(4).max(20).required(),
+});
 
 export default function Home() {
 
-  const {register, handleSubmit, formState: {errors}} = useForm<IFormInputs>();
+  const {register, handleSubmit, watch, formState: {errors}} = useForm<IFormInputs>({
+    resolver: yupResolver(schema)
+  });
 
   const handleSubmitForm:SubmitHandler<IFormInputs> = (data:IFormInputs ) =>{
-    console.log(data);
-    
+    console.log(data);    
   };
+
+  // console.log("value Email change", watch('email'));
+  
+  console.log(errors);
 
   return (
     <div className={styles.container}>
@@ -37,18 +47,32 @@ export default function Home() {
           </form>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+      {
+        errors && errors.email ? (
+          <footer className={styles.footer}>
+          <a
+            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          > 
+           {errors.email && errors.email.message ? <span>{errors.email.message}</span> : null}           
+          </a>
+        </footer>
+        ) : null
+      }
+      {
+        errors && errors.password ? (
+          <footer className={styles.footer}>
+          <a
+            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          > 
+            {errors.password && errors.password.message ? <span>{errors.password.message}</span>: null}           
+          </a>
+        </footer>
+        ) : null
+      }    
     </div>
   )
 }
