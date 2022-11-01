@@ -1,7 +1,8 @@
 import { FC } from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import {useForm, SubmitHandler} from 'react-hook-form'
+import {useForm, SubmitHandler,Controller} from 'react-hook-form'
+import { TextField } from '@mui/material'
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
@@ -17,7 +18,7 @@ const schema = yup.object().shape({
 
 export default function Home() {
 
-  const {register, handleSubmit, watch, formState: {errors}} = useForm<IFormInputs>({
+  const {register, handleSubmit, watch,control, formState: {errors}} = useForm<IFormInputs>({
     resolver: yupResolver(schema)
   });
 
@@ -39,9 +40,21 @@ export default function Home() {
 
       <main className={styles.main}>
           <form onSubmit={handleSubmit(handleSubmitForm)}>
-            <input type="text" defaultValue="binh@gmail.com" {...register('email')}/>
+            <Controller
+            name='email'
+            control={control}
+            render={({field})=>{
+              return <TextField {...field} label="email" error={!!errors.email} helperText={errors.email?.message}/>
+            }}
+            />
             <br />
-            <input type="password" {...register('password')}/>
+            <Controller
+            name='password'
+            control={control}
+            render={({field})=>{
+              return <TextField {...field} label="password" error={!!errors.password} helperText={errors.password?.message}/>
+            }}
+            />
             <br />
             <input type="submit" value="submit"/>
           </form>
