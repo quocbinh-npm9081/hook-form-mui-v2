@@ -1,10 +1,10 @@
 import { FC } from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import {useForm, SubmitHandler,Controller} from 'react-hook-form'
-import { TextField } from '@mui/material'
+import {useForm, SubmitHandler,FormProvider} from 'react-hook-form'
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import SubTextField from './components/SubTextField';
 
 interface IFormInputs{
   email: string,
@@ -12,13 +12,13 @@ interface IFormInputs{
 }
 
 const schema = yup.object().shape({
-  email: yup.string().email(),
+  email: yup.string().email().required(),
   password: yup.string().min(4).max(20).required(),
 });
 
 export default function Home() {
 
-  const {register, handleSubmit, watch,control, formState: {errors}} = useForm<IFormInputs>({
+  const menthods = useForm<IFormInputs>({
     resolver: yupResolver(schema)
   });
 
@@ -26,9 +26,8 @@ export default function Home() {
     console.log(data);    
   };
 
-  // console.log("value Email change", watch('email'));
+ console.log("value Email change", menthods.watch('email'));
   
-  console.log(errors);
 
   return (
     <div className={styles.container}>
@@ -39,53 +38,14 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-          <form onSubmit={handleSubmit(handleSubmitForm)}>
-            <Controller
-            name='email'
-            control={control}
-            render={({field})=>{
-              return <TextField {...field} label="email" error={!!errors.email} helperText={errors.email?.message}/>
-            }}
-            />
-            <br />
-            <Controller
-            name='password'
-            control={control}
-            render={({field})=>{
-              return <TextField {...field} label="password" error={!!errors.password} helperText={errors.password?.message}/>
-            }}
-            />
-            <br />
+      <FormProvider {...menthods}>
+          <form onSubmit={menthods.handleSubmit(handleSubmitForm)}>
+            <SubTextField name='email' defaultValue=""/>           
+            <SubTextField name='password' defaultValue=""/>          
             <input type="submit" value="submit"/>
           </form>
+      </FormProvider>
       </main>
-
-      {
-        errors && errors.email ? (
-          <footer className={styles.footer}>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          > 
-           {errors.email && errors.email.message ? <span>{errors.email.message}</span> : null}           
-          </a>
-        </footer>
-        ) : null
-      }
-      {
-        errors && errors.password ? (
-          <footer className={styles.footer}>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          > 
-            {errors.password && errors.password.message ? <span>{errors.password.message}</span>: null}           
-          </a>
-        </footer>
-        ) : null
-      }    
     </div>
   )
 }
