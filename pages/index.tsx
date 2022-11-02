@@ -13,8 +13,14 @@ interface IFormInputs{
   show?:string
 }
 
-const schema = yup.object().shape({
+const schemaBase = yup.object().shape({
   email: yup.string().email().required('Name is required'),
+  password: yup.string().min(4).max(20).required('Name is required'),
+});
+const schemaForEmail = yup.object().shape({
+  email: yup.string().email().required('Name is required'),
+});
+const schemaForPassword = yup.object().shape({
   password: yup.string().min(4).max(20).required('Name is required'),
 });
 
@@ -26,35 +32,34 @@ const initialValue : IFormInputs= {
 export default function Home() {
   const [valueSelect , getValueSelected] = useState<string | undefined>('show-all');
   const [defaultValue, setDefaultValues] = useState<any>({email: '', password: '', ...initialValue});
-
+  const [shema, setShema] = useState<any>(schemaBase);
 
   const methods = useForm<IFormInputs>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(shema),
     defaultValues: defaultValue
   });
 
-
-
-
   const selected = methods.watch('show');
+  
   useEffect(() => {
   if(valueSelect === 'show-email') {    
+    setShema(schemaForEmail);
     setDefaultValues({email: '',...initialValue });
   }
   if(valueSelect === 'show-password') {
+    setShema(schemaForPassword);
     setDefaultValues({password: '',...initialValue });
   }
   }, [valueSelect])
   
-  useEffect(() => {
+  useEffect(() => { 
     getValueSelected(selected); 
   }, [selected])
   
   useEffect(() => {
-    console.log(defaultValue)
-
+    //console.log(defaultValue)
   }, [defaultValue])
-  
+    
 
   const handleSubmitForm:SubmitHandler<IFormInputs> = (data:IFormInputs ) =>{  
     let dataTemp = data;
